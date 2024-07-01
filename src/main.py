@@ -4,7 +4,7 @@ import os
 
 class Category:
     total_number_categories = 0
-    total_number_unique_products = set()
+    total_number_unique_products = 0
 
     title: str
     description: str
@@ -16,8 +16,7 @@ class Category:
         self.products = products
 
         Category.total_number_categories += 1
-        for product in products:
-            Category.total_number_unique_products.add(product)
+        Category.total_number_unique_products += len(set(products))
 
 
 class Product:
@@ -57,4 +56,4 @@ for categories in list_products:
         print(f" Количество в наличии: {product.quantity_in_stock}")
 
 print(f"Общее количество категорий: {Category.total_number_categories}")
-print(f"Общее количество уникальных продуктов: {len(Category.total_number_unique_products)}")
+print(f"Общее количество уникальных продуктов: {Category.total_number_unique_products}")

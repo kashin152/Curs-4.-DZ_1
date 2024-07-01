@@ -35,8 +35,8 @@ def test_init_product(product):
 
 
 def test_category_count(category):
-    assert Category.total_number_categories == 3
-    assert len(Category.total_number_unique_products) == 4
+    assert Category.total_number_categories == 4
+    assert Category.total_number_unique_products == 10
 
 
 def test_data_transactions():
