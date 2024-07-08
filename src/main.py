@@ -13,10 +13,28 @@ class Category:
     def __init__(self, title, description, products):
         self.title = title
         self.description = description
-        self.products = products
+        self.__products = products
 
         Category.total_number_categories += 1
-        Category.total_number_unique_products += len(set(products))
+        Category.total_number_unique_products += len(products)
+
+    @property
+    def print_products(self):
+        return [
+            f"{product.title}, {product.price} руб. Остаток: {product.quantity_in_stock} шт."
+            for product in self.__products
+        ]
+
+    @property
+    def products(self):
+        return self.__products
+
+    def add_product(self, product):
+        if product not in self.__products:
+            self.__products.append(product)
+            Category.total_number_unique_products += 1
+        else:
+            print(f"Товар '{product['name']}' уже существует в категории '{self.title}'.")
 
 
 class Product:
@@ -24,12 +42,30 @@ class Product:
     description: str
     price: float
     quantity_in_stock: int
+    list_of_products: []
 
     def __init__(self, title, description, price, quantity_in_stock):
         self.title = title
         self.description = description
-        self.price = price
+        self.__price = price
         self.quantity_in_stock = quantity_in_stock
+
+    @classmethod
+    def create_product(cls, name, description, price, quantity):
+        return cls(name, description, price, quantity)
+
+    @property
+    def price(self):
+        return self.__price
+
+    @price.setter
+    def price(self, price):
+        if price <= 0:
+            print("Некорректная цена. Цена должна быть больше нуля.")
+
+    @price.deleter
+    def price(self):
+        self.__price = None
 
 
 def data_transactions(file):
@@ -40,20 +76,43 @@ def data_transactions(file):
 
 list_products = data_transactions(os.path.join(os.path.dirname(__file__), "products.json"))
 
+
+category_list = []
 for categories in list_products:
-    category = Category(
-        categories["name"], categories["description"], [category["name"] for category in categories["products"]]
-    )
-    print(f"Название категории: {category.title}")
-    print(f"Описание категории: {category.description}")
-    print(f"Список товаров: {category.products}")
+    products = [
+        Product(product["name"], product["description"], product["price"], product["quantity"])
+        for product in categories["products"]
+    ]
+    category = Category(categories["name"], categories["description"], products)
+    category_list.append(category)
 
-    for product in categories["products"]:
-        product = Product(product["name"], product["description"], product["price"], product["quantity"])
-        print(f"Название продукта: {product.title}")
-        print(f" Описание: {product.description}")
-        print(f" Цена: {product.price}")
-        print(f" Количество в наличии: {product.quantity_in_stock}")
 
-print(f"Общее количество категорий: {Category.total_number_categories}")
-print(f"Общее количество уникальных продуктов: {Category.total_number_unique_products}")
+new_product = {
+    "name": "Телевизоры",
+    "description": """Телевизор обладает множеством преимуществ, которые делают его
+             идеальным выбором для любого пользователя.""",
+    "products": [
+        {"name": "Smart TV Q90-35", "description": "Оснащен технологией Smart TV", "price": 14997.0, "quantity": 10}
+    ],
+}
+
+for category in category_list:
+    if category.title == new_product["name"]:
+        for product in new_product["products"]:
+            new_product_obj = Product.create_product(
+                product["name"], product["description"], product["price"], product["quantity"]
+            )
+            category.add_product(new_product_obj)
+
+
+for category in category_list:
+    print("\n".join(category.print_products))
+
+product = Product("Test", "Description", 10.0, 5)
+print(product.price)
+
+product.price = -5.0
+print(product.price)
+
+product.price = 20.0
+print(product.price)
