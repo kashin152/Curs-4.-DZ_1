@@ -114,18 +114,20 @@ def categorys():
     )
 
 
-def test_print_products(categorys):
-    expected_products = [
-        "Samsung Galaxy C23 Ultra, 180000.0 руб. Остаток: 5 шт.",
-        "Iphone 15, 210000.0 руб. Остаток: 8 шт.",
-        "Xiaomi Redmi Note 11, 31000.0 руб. Остаток: 14 шт.",
-    ]
-    actual_products = [
-        f"{product.title}, {product.price} руб. Остаток: {product.quantity_in_stock} шт."
-        for product in categorys._Category__products
-    ]
-    for product in expected_products:
-        assert product in actual_products
+def test_category_str():
+    category = Category("Test Category", "Test description", [1, 2, 3])
+    assert str(category) == "Категория: Test Category, количество продуктов 3"
+
+
+def test_product_str():
+    product = Product("Test Product", "Test description", 100, 10)
+    assert str(product) == "Test Product, 100 руб. Остаток: 10 шт."
+
+
+def test_product_add():
+    product_a = Product("Product A", "Описание A", 100, 10)
+    product_b = Product("Product B", "Описание B", 200, 2)
+    assert product_a + product_b == 1400
 
 
 def test_add_product():
@@ -166,3 +168,8 @@ def test_price_del():
     product = Product("Samsung Galaxy C23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
     del product.price
     assert product.price is None
+
+
+def test_category_len():
+    category = Category("Test Category", "Test description", [1, 2, 3])
+    assert len(category) == 3
