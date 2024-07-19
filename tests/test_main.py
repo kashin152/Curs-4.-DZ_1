@@ -57,7 +57,7 @@ def test_init_product(product):
 
 def test_category_count(category):
     assert Category.total_number_categories == 4
-    assert Category.total_number_unique_products == 11
+    assert Category.total_number_unique_products == 12
 
 
 def test_data_transactions():
@@ -140,7 +140,7 @@ def test_add_product():
     product = Product("Samsung Galaxy C23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
     category.add_product(product)
     assert product in category._Category__products
-    assert Category.total_number_unique_products == 15
+    assert Category.total_number_unique_products == 16
 
 
 def test_create_product():
