@@ -18,12 +18,11 @@ class Category:
         Category.total_number_categories += 1
         Category.total_number_unique_products += len(products)
 
-    @property
-    def print_products(self):
-        return [
-            f"{product.title}, {product.price} руб. Остаток: {product.quantity_in_stock} шт."
-            for product in self.__products
-        ]
+    def __len__(self):
+        return len(self.__products)
+
+    def __str__(self):
+        return f"Категория: {self.title}, количество продуктов {len(self)}"
 
     @property
     def products(self):
@@ -49,6 +48,15 @@ class Product:
         self.description = description
         self.__price = price
         self.quantity_in_stock = quantity_in_stock
+
+    def __str__(self):
+        return f"{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт."
+
+    def __add__(self, other):
+        if isinstance(other, Product):
+            return (self.price * self.quantity_in_stock) + (other.price * other.quantity_in_stock)
+        else:
+            raise TypeError("Объект должен быть экземпляром класса Product")
 
     @classmethod
     def create_product(cls, name, description, price, quantity):
@@ -106,13 +114,19 @@ for category in category_list:
 
 
 for category in category_list:
-    print("\n".join(category.print_products))
+    print(str(category))
+    for product in category.products:
+        print(product)
 
-product = Product("Test", "Description", 10.0, 5)
-print(product.price)
+product_a = Product("Product A", "Описание A", 100, 10)
+product_b = Product("Product B", "Описание B", 200, 2)
+print(f"Сумма: {product_a + product_b} руб.")
 
-product.price = -5.0
-print(product.price)
-
-product.price = 20.0
-print(product.price)
+# product = Product("Test", "Description", 10.0, 5)
+# print(product.price)
+#
+# product.price = -5.0
+# print(product.price)
+#
+# product.price = 20.0
+# print(product.price)
