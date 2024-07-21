@@ -1,8 +1,23 @@
 import json
 import os
+from abc import ABC, abstractmethod
 
 
-class Category:
+class MixinPrint:
+    def __init__(self):
+        super().__init__()
+
+    def __repr__(self):
+        if isinstance(self, Category):
+            return f"{self.__class__.__name__}('{self.title}', '{self.description}', {self.products})"
+        elif isinstance(self, Product):
+            return (
+                f"{self.__class__.__name__}('{self.title}', "
+                f"'{self.description}', {self.price}, {self.quantity_in_stock})"
+            )
+
+
+class Category(MixinPrint):
     total_number_categories = 0
     total_number_unique_products = 0
 
@@ -14,6 +29,8 @@ class Category:
         self.title = title
         self.description = description
         self.__products = products
+        super().__init__()
+        print(self.__repr__())
 
         Category.total_number_categories += 1
         Category.total_number_unique_products += len(products)
@@ -39,7 +56,14 @@ class Category:
             raise TypeError("Объект должен быть экземпляром класса Product или его наследника")
 
 
-class Product:
+class AbstractProduct(ABC):
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+
+class Product(MixinPrint, AbstractProduct):
     title: str
     description: str
     price: float
@@ -51,6 +75,8 @@ class Product:
         self.description = description
         self.__price = price
         self.quantity_in_stock = quantity_in_stock
+        super().__init__()
+        print(self.__repr__())
 
     def __str__(self):
         return f"{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт."
@@ -109,9 +135,11 @@ class LawnGrass(Product):
         self.color = color
 
     def __str__(self):
-        return f"{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт.\n" \
-               f"Страна производства: {self.country_of_origin}, Срок прорастания: {self.germination_period} дней,\n" \
-               f"Цвет: {self.color}"
+        return (
+            f"{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт.\n"
+            f"Страна производства: {self.country_of_origin}, Срок прорастания: {self.germination_period} дней,\n"
+            f"Цвет: {self.color}"
+        )
 
 
 def data_transactions(file):
@@ -171,4 +199,3 @@ for category in category_list:
     print(str(category))
     for product in category.products:
         print(product)
-
