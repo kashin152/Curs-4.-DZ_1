@@ -183,14 +183,7 @@ product_a = Product("Product A", "Описание A", 100, 10)
 product_b = Product("Product B", "Описание B", 200, 2)
 print(f"Сумма: {product_a + product_b} руб.")
 
-# product = Product("Test", "Description", 10.0, 5)
-# print(product.price)
-#
-# product.price = -5.0
-# print(product.price)
-#
-# product.price = 20.0
-# print(product.price)
+
 
 smartphone = Smartphone("Smartphone", "Description", 1000, 10, "High", "Model", 128, "Black")
 category.add_product(smartphone)
