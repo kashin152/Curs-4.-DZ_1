@@ -29,11 +29,14 @@ class Category:
         return self.__products
 
     def add_product(self, product):
-        if product not in self.__products:
-            self.__products.append(product)
-            Category.total_number_unique_products += 1
+        if isinstance(product, Product) or issubclass(type(product), Product):
+            if product not in self.__products:
+                self.__products.append(product)
+                Category.total_number_unique_products += 1
+            else:
+                print(f"Товар '{product.title}' уже существует в категории '{self.title}'.")
         else:
-            print(f"Товар '{product['name']}' уже существует в категории '{self.title}'.")
+            raise TypeError("Объект должен быть экземпляром класса Product или его наследника")
 
 
 class Product:
@@ -53,10 +56,10 @@ class Product:
         return f"{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт."
 
     def __add__(self, other):
-        if isinstance(other, Product):
+        if type(self) is type(other):
             return (self.price * self.quantity_in_stock) + (other.price * other.quantity_in_stock)
         else:
-            raise TypeError("Объект должен быть экземпляром класса Product")
+            raise TypeError("Объекты должны быть экземплярами одного и того же класса")
 
     @classmethod
     def create_product(cls, name, description, price, quantity):
@@ -74,6 +77,41 @@ class Product:
     @price.deleter
     def price(self):
         self.__price = None
+
+
+class Smartphone(Product):
+    performance: str
+    model: str
+    internal_memory: int
+    color: str
+
+    def __init__(self, title, description, price, quantity_in_stock, performance, model, internal_memory, color):
+        super().__init__(title, description, price, quantity_in_stock)
+        self.performance = performance
+        self.model = model
+        self.internal_memory = internal_memory
+        self.color = color
+
+    def __str__(self):
+        return f"""{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт. Модель: {self.model},
+            Производительность: {self.performance}, Встроенная память: {self.internal_memory} ГБ, Цвет: {self.color}"""
+
+
+class LawnGrass(Product):
+    country_of_origin: str
+    germination_period: int
+    color: str
+
+    def __init__(self, title, description, price, quantity_in_stock, country_of_origin, germination_period, color):
+        super().__init__(title, description, price, quantity_in_stock)
+        self.country_of_origin = country_of_origin
+        self.germination_period = germination_period
+        self.color = color
+
+    def __str__(self):
+        return f"{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт.\n" \
+               f"Страна производства: {self.country_of_origin}, Срок прорастания: {self.germination_period} дней,\n" \
+               f"Цвет: {self.color}"
 
 
 def data_transactions(file):
@@ -113,11 +151,6 @@ for category in category_list:
             category.add_product(new_product_obj)
 
 
-for category in category_list:
-    print(str(category))
-    for product in category.products:
-        print(product)
-
 product_a = Product("Product A", "Описание A", 100, 10)
 product_b = Product("Product B", "Описание B", 200, 2)
 print(f"Сумма: {product_a + product_b} руб.")
@@ -130,3 +163,12 @@ print(f"Сумма: {product_a + product_b} руб.")
 #
 # product.price = 20.0
 # print(product.price)
+
+smartphone = Smartphone("Smartphone", "Description", 1000, 10, "High", "Model", 128, "Black")
+category.add_product(smartphone)
+
+for category in category_list:
+    print(str(category))
+    for product in category.products:
+        print(product)
+
