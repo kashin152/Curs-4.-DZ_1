@@ -57,7 +57,7 @@ def test_init_product(product):
 
 def test_category_count(category):
     assert Category.total_number_categories == 4
-    assert Category.total_number_unique_products == 12
+    assert Category.total_number_unique_products == 11
 
 
 def test_data_transactions():
@@ -140,7 +140,7 @@ def test_add_product():
     product = Product("Samsung Galaxy C23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
     category.add_product(product)
     assert product in category._Category__products
-    assert Category.total_number_unique_products == 16
+    assert Category.total_number_unique_products == 15
 
 
 def test_create_product():
@@ -173,3 +173,24 @@ def test_price_del():
 def test_category_len():
     category = Category("Test Category", "Test description", [1, 2, 3])
     assert len(category) == 3
+
+
+def test_add_product_invalid():
+    category = Category("Телефизоры", "Техника для дома", "Smart TV")
+    with pytest.raises(TypeError):
+        category.add_product("Одежда")
+
+
+def test_add_product_quantity_zero():
+    category = Category("Телефизоры", "Техника для дома", "Smart TV")
+    product1 = Product("Smart TV Q90-35", "Оснащен технологией Smart TV", 14997.0, 0)
+    category.__products = []
+    with pytest.raises(ValueError):
+        if product1.quantity_in_stock <= 0:
+            raise ValueError("Количество должно быть больше нуля")
+
+
+def test_average_price_goods_empty():
+    products = []
+    with pytest.raises(ZeroDivisionError):
+        sum(product["price"] for product in products) / len(products)

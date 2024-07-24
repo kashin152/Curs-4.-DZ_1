@@ -9,7 +9,7 @@ class MixinPrint:
         print(self.__repr__())
 
     def __repr__(self):
-        attrs = ', '.join([f"{getattr(self, attr)}" for attr in self.__dict__])
+        attrs = ", ".join([f"{getattr(self, attr)}" for attr in self.__dict__])
         return f"{self.__class__.__name__}({attrs})"
 
 
@@ -42,13 +42,30 @@ class Category(MixinPrint):
 
     def add_product(self, product):
         if isinstance(product, Product) or issubclass(type(product), Product):
+
             if product not in self.__products:
-                self.__products.append(product)
-                Category.total_number_unique_products += 1
+
+                if product.quantity_in_stock <= 0:
+                    raise ValueError("Количество должно быть больше нуля")
+
+                else:
+                    self.__products.append(product)
+                    Category.total_number_unique_products += 1
+
             else:
                 print(f"Товар '{product.title}' уже существует в категории '{self.title}'.")
+
         else:
             raise TypeError("Объект должен быть экземпляром класса Product или его наследника")
+
+    def average_price_goods(self):
+
+        if not self.__products:
+            return 0
+        try:
+            return round(sum(product.price for product in self.__products) / len(self.__products), 2)
+        except ZeroDivisionError:
+            return 0
 
 
 class AbstractProduct(ABC):
@@ -146,7 +163,7 @@ class LawnGrass(Product, MixinPrint):
 
     @classmethod
     def create_product(
-            cls, title, description, price, quantity_in_stock, country_of_origin, germination_period, color
+        cls, title, description, price, quantity_in_stock, country_of_origin, germination_period, color
     ):
         return cls(title, description, price, quantity_in_stock, country_of_origin, germination_period, color)
 
@@ -190,16 +207,17 @@ for category in category_list:
 
 product_a = Product("Product A", "Описание A", 100, 10)
 product_b = Product("Product B", "Описание B", 200, 2)
-print(f"Сумма: {product_a + product_b} руб.")
+# print(f"Сумма: {product_a + product_b} руб.")
 
 
 smartphone = Smartphone("Smartphone", "Description", 1000, 10, "High", "Model", 128, "Black")
-category.add_product(smartphone)
+# category.add_product(smartphone)
 
 lawngrass = LawnGrass.create_product("Lawngrass", "Description", 1020, 1, "USA", 1, "green")
 
-print(lawngrass)
+# print(lawngrass)
 for category in category_list:
     print(str(category))
     for product in category.products:
         print(product)
+    print(f"Средняя цена товаров в категории '{category.title}': {category.average_price_goods()} руб.")
