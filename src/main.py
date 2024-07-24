@@ -4,17 +4,13 @@ from abc import ABC, abstractmethod
 
 
 class MixinPrint:
+
     def __init__(self):
-        super().__init__()
+        print(self.__repr__())
 
     def __repr__(self):
-        if isinstance(self, Category):
-            return f"{self.__class__.__name__}('{self.title}', '{self.description}', {self.products})"
-        elif isinstance(self, Product):
-            return (
-                f"{self.__class__.__name__}('{self.title}', "
-                f"'{self.description}', {self.price}, {self.quantity_in_stock})"
-            )
+        attrs = ', '.join([f"{getattr(self, attr)}" for attr in self.__dict__])
+        return f"{self.__class__.__name__}({attrs})"
 
 
 class Category(MixinPrint):
@@ -30,7 +26,6 @@ class Category(MixinPrint):
         self.description = description
         self.__products = products
         super().__init__()
-        print(self.__repr__())
 
         Category.total_number_categories += 1
         Category.total_number_unique_products += len(products)
@@ -59,7 +54,7 @@ class Category(MixinPrint):
 class AbstractProduct(ABC):
 
     @abstractmethod
-    def __str__(self):
+    def create_product(self, *args, **kwargs):
         pass
 
 
@@ -76,7 +71,6 @@ class Product(MixinPrint, AbstractProduct):
         self.__price = price
         self.quantity_in_stock = quantity_in_stock
         super().__init__()
-        print(self.__repr__())
 
     def __str__(self):
         return f"{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт."
@@ -88,8 +82,8 @@ class Product(MixinPrint, AbstractProduct):
             raise TypeError("Объекты должны быть экземплярами одного и того же класса")
 
     @classmethod
-    def create_product(cls, name, description, price, quantity):
-        return cls(name, description, price, quantity)
+    def create_product(cls, *args, **kwarg):
+        return cls(*args, **kwarg)
 
     @property
     def price(self):
@@ -104,8 +98,11 @@ class Product(MixinPrint, AbstractProduct):
     def price(self):
         self.__price = None
 
+    def new_product(self, *args, **kwargs):
+        pass
 
-class Smartphone(Product):
+
+class Smartphone(Product, MixinPrint):
     performance: str
     model: str
     internal_memory: int
@@ -117,13 +114,18 @@ class Smartphone(Product):
         self.model = model
         self.internal_memory = internal_memory
         self.color = color
+        MixinPrint.__init__(self)
 
     def __str__(self):
         return f"""{self.title}, {self.price} руб. Остаток: {self.quantity_in_stock} шт. Модель: {self.model},
             Производительность: {self.performance}, Встроенная память: {self.internal_memory} ГБ, Цвет: {self.color}"""
 
+    @classmethod
+    def create_product(cls, title, description, price, quantity_in_stock, performance, model, internal_memory, color):
+        return cls(title, description, price, quantity_in_stock, performance, model, internal_memory, color)
 
-class LawnGrass(Product):
+
+class LawnGrass(Product, MixinPrint):
     country_of_origin: str
     germination_period: int
     color: str
@@ -133,6 +135,7 @@ class LawnGrass(Product):
         self.country_of_origin = country_of_origin
         self.germination_period = germination_period
         self.color = color
+        MixinPrint.__init__(self)
 
     def __str__(self):
         return (
@@ -140,6 +143,12 @@ class LawnGrass(Product):
             f"Страна производства: {self.country_of_origin}, Срок прорастания: {self.germination_period} дней,\n"
             f"Цвет: {self.color}"
         )
+
+    @classmethod
+    def create_product(
+            cls, title, description, price, quantity_in_stock, country_of_origin, germination_period, color
+    ):
+        return cls(title, description, price, quantity_in_stock, country_of_origin, germination_period, color)
 
 
 def data_transactions(file):
@@ -183,18 +192,13 @@ product_a = Product("Product A", "Описание A", 100, 10)
 product_b = Product("Product B", "Описание B", 200, 2)
 print(f"Сумма: {product_a + product_b} руб.")
 
-# product = Product("Test", "Description", 10.0, 5)
-# print(product.price)
-#
-# product.price = -5.0
-# print(product.price)
-#
-# product.price = 20.0
-# print(product.price)
 
 smartphone = Smartphone("Smartphone", "Description", 1000, 10, "High", "Model", 128, "Black")
 category.add_product(smartphone)
 
+lawngrass = LawnGrass.create_product("Lawngrass", "Description", 1020, 1, "USA", 1, "green")
+
+print(lawngrass)
 for category in category_list:
     print(str(category))
     for product in category.products:
